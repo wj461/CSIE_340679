@@ -108,13 +108,185 @@ static int josephus(int n, int p) {
 }
 ```
 
-
 = 28. page 75 , Ans page 198
+```java
+class Bucket {
+  String element;
+  Bucket next;
+  Bucket(String element, Bucket next) {
+    this.element = element;
+    this.next = next;
+  }
+}
+class HashTable {
+  private Bucket[] buckets;
+  final private static int M = 17;
+  HashTable() {
+    this.buckets = new Bucket[M];
+  }
+
+  private int hash(String s) {
+    int h = 0;
+    for (int i = 0; i < s.length(); i++)
+      h = s.charAt(i) + 19 * h;
+    return (h & 0x7fffffff) % M;
+  }
+
+  void add(String s) {
+    int i = hash(s);
+    this.buckets[i] = new Bucket(s, this.buckets[i]);
+  }
+
+  void remove(String s){
+    int i = hash(s);
+    Bucket b = this.buckets[i];
+    if (b == null) return; // nothing to remove
+
+    if (b.element.equals(s)) {
+      this.buckets[i] = b.next; // 刪除頭節點
+
+      return;
+    }
+    for (; b.next != null; b = b.next){
+      if (b.next.element.equals(s)){
+        b.next = b.next.next;
+      }
+    }
+  }
+}
+```
 Add a void remove(String s) method to remove an element s from the hash table.  What is the impact on the add method? 
+- 在hash table中加入一個void remove(String s) method來刪除元素s，對add method有什麼影響？\
 
 = 37. page 84 , Ans page 198
+```java
+class BST {
+  int value;
+  BST left, right;
+}
+
+static int getMin(BST b) {
+  while (b.left != null) b = b.left;
+  return b.value;
+}
+
+static boolean contains(BST b, int x) {
+  while (b != null) {
+    if (x == b.value) return true;
+    b = (x < b.value) ? b.left : b.right;
+  }
+  return false;
+}
+
+static int floor(BST b, int x){
+  int maxLessThanX = null;
+  while (b != null) {
+    f (x == b.value) return x;
+    if (x < b.value) b = b.left;
+    else { maxLessThanX = b.value; b = b.right; }
+  }
+
+  if (maxLessThanX == null) throw new NoSuchElementException();
+  return maxLessThanX;
+}
+```
+  
+Binary search tree
 Write a method static int floor(BST b, int x) that returns the largest element of b less than or equal to x, if it exists, and throws an exception otherwise. 
+- 寫一個方法 static int floor(BST b, int x) 返回b中小於或等於x的最大元素，不到就拋exception。\
+
+
 = 40. page 95, Ans page 199
+```java
+class AVL {
+  int value;
+  AVL left, right;
+  int height;
+  AVL(AVL left, int value, AVL right) {
+    this.left = left;
+    this.value = value;
+    this.right = right;
+    this.height = 1 + Math.max(height(left), height(right));
+  }
+  static int height(AVL a) {
+    return (a == null) ? 0 : a.height;
+  }
+  static boolean contains(AVL a, int x) {
+    // same code as for BST
+  }
+  static int getMin(AVL b) {
+    // same code as for BST
+  }
+  static AVL add(AVL b, int x) {
+    // same code as for BST except
+    return balance(b);
+  }
+  static AVL removeMin(AVL b) {
+    // same code as for BST except
+    return balance(b);
+  }
+  static AVL remove(AVL b) {
+    // same code as for BST except
+    return balance(b);
+
+  }
+
+  private static AVL rotateRight(AVL t) {
+    assert t != null && t.left != null;
+    AVL l = t.left;
+    t.left = l.right;
+    l.right = t;
+    t.height = 1 + Math.max(height(t.left), height(t.right));
+    l.height = 1 + Math.max(height(l.left), height(l.right));
+    return l;
+  }
+  private static AVL rotateLeft(AVL t) {
+    assert t != null && t.right != null;
+    AVL r = t.right;
+    t.right = r.left;
+    r.left = t;
+    t.height = 1 + Math.max(height(t.left), height(t.right));
+    r.height = 1 + Math.max(height(r.left), height(r.right));
+    return r;
+  }
+  private static AVL balance(AVL t) {
+    assert t != null;
+    AVL l = t.left, r = t.right;
+    int hl = height(l), hr = height(r);
+    if (hl > hr + 1) {
+      AVL ll = l.left, lr = l.right;
+      if (height(ll) >= height(lr))
+        return rotateRight(t);
+      else {
+        t.left = rotateLeft(t.left);
+        return rotateRight(t);
+      }
+    } else if (hr > hl + 1) {
+      AVL rl = r.left, rr = r.right;
+      if (height(rr) >= height(rl))
+        return rotateLeft(t);
+      else {
+        t.right = rotateRight(t.right);
+        return rotateLeft(t);
+      }
+    } else {
+      t.height = 1 + Math.max(hl, hr);
+      return t;
+    }
+  }
+}
+
+class AVLSet {
+  private AVL root;
+
+  boolean isEmpty();
+  boolean contains(int x);
+  void add(int x);
+  void remove(int x);
+}
+
+
+```
 Add to the AVLSet class a private field size containing the number of elements in the set and an int size() method that returns its value. Modify the add and remove methods to update the value of this field. It will be necessary to correctly handle the case where the element added by add is already in the set and the case where the element removed by remove is not in the set. 
 = 59. page 127 , Ans page 204
 Add to the union-find structure a method int numClasses() giving the number of distinct classes. We will try to provide this value in constant time, maintaining the value as an additional field.
